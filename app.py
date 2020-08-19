@@ -1,4 +1,4 @@
-from flask import Flask,redirect,url_for,render_template,request
+from flask import Flask,redirect,url_for,render_template,request,session
 import pymysql
 import pymysql.cursors
 app = Flask(__name__)
@@ -20,19 +20,9 @@ def connect():
 #home
 @app.route('/',methods=['GET','POST'])
 def main():
+	if 'Username' in session:
+		return render_template('index.html')
 	return render_template('home.html')
-	print("inside home")
-	# return render_template('index.html')
-	if request.method=='POST':
-		if request.form['Login']:
-			return redirect(url_for('loginlink'))
-		if request.form['Sign Up']:
-			return redirect(url_for('signup'))
-		if request.form['Admin']:
-			return redirect(url_for('admin_login'))
-		else:
-			if request.method == 'GET':
-				return render_template('home.html')
 
 
 
@@ -90,6 +80,7 @@ def login():
 		if result: 
 			tempp = str(result[0]['password'])
 			if tempp == str(pas):
+				session['Username']=inp['Username']
 				return redirect(url_for('index'))
 			else:
 				error='Wrong Credentials'
@@ -184,5 +175,19 @@ def frozen():
 def bread():
 	return render_template('bread.html')
 
+@app.route('/privacy',methods = ['GET','POST'])
+def privacy():
+	return render_template('privacy.html')
+
+@app.route('/single',methods = ['GET','POST'])
+def single():
+	return render_template('single.html')
+
+@app.route("/logout")
+def logout():
+    session.pop('Username',None)
+    return render_template("home.html")
+
 if __name__ == '__main__':
+	app.secret_key = 'nikitha_shraddha_deepa'
 	app.run(debug=True)
